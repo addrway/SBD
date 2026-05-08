@@ -1,67 +1,115 @@
 # SBD Pro
 
-SBD Pro is a Simple Business Dashboard for small businesses, logistics teams, managers, and consultants. Core message: **Enter your data. See your business clearly.**
+SBD Pro is a Simple Business Dashboards SaaS MVP for small businesses, logistics teams, managers, and consultants.
 
-## Stack
+Core message: **Enter your data. See your business clearly.**
 
-- React 18 with Create React App
+## Tech Stack
+
+- React with Create React App
+- Chart.js and react-chartjs-2
+- PapaParse for CSV uploads
 - Supabase Auth and Postgres
-- Vercel hosting and serverless API routes
-- Anthropic Claude API for AI Auto-Formulate and the SBD AI Agent
+- Vercel hosting
 - Figtree body font and Playfair Display headings
 
-## Environment
+## Environment Variables
 
-Copy `.env.example` to `.env` locally and configure:
+Add these in Vercel and in local `.env`:
 
-```bash
+```env
 REACT_APP_SUPABASE_URL=https://cfzlglnnqyetjtbtixlx.supabase.co
-REACT_APP_SUPABASE_KEY=your-supabase-anon-key
+REACT_APP_SUPABASE_KEY=sb_publishable_ihmJz3DWT4_wcGxKNYr9qg_RE-MC0fq
 ANTHROPIC_API_KEY=your-server-side-anthropic-key
 ```
 
-`REACT_APP_SUPABASE_KEY` is the public Supabase anon key. `ANTHROPIC_API_KEY` must only be set in the server/Vercel environment.
-
-## Database
-
-Run `schema.sql` in the Supabase SQL editor. It creates:
-
-- `profiles`
-- `finance`
-- `projects`
-- `logistics`
-- `inventory`
-- `customers`
-
-Every data table has RLS enabled and policies requiring `auth.uid()` to match the row owner. The `handle_new_user()` trigger creates a profile with `plan='trial'` and `trial_ends=now()+24 hours` when a user signs up.
+Never use a Supabase service role key in the frontend. The Anthropic key is only for server-side API routes.
 
 ## Local Development
 
 ```bash
 npm install
+npm run build
 npm start
 ```
 
-## Build
+## Vercel Settings
 
-```bash
-npm run build
+- Application Preset: Create React App
+- Root Directory: `./`
+- Build Command: `npm run build`
+- Output Directory: `build`
+
+The repo includes `vercel.json` with these settings.
+
+## Supabase Setup
+
+Run `supabase-schema.sql` or `schema.sql` in the Supabase SQL editor. It creates:
+
+- `profiles`
+- `tasks`
+- `uploads`
+- `invoices`
+- `receipts`
+- `inventory`
+- `customers`
+- `time_entries`
+- `transactions`
+- `contractors`
+- `reports`
+
+All user-owned tables have Row Level Security enabled and policies requiring `auth.uid()` ownership.
+
+## Authentication Flow
+
+- Unauthenticated users see marketing, pricing, login, and signup screens.
+- Signup creates a Supabase Auth user.
+- The database trigger creates a `profiles` row with role `customer`, plan `trial`, and a 24-hour trial timestamp.
+- Authenticated users can access the protected dashboard.
+- Logout clears the stored session.
+
+## Admin Setup
+
+Create this test user in Supabase Auth:
+
+- Email: `addrway@outlook.com`
+- Password: use the temporary test password provided separately
+
+Do not store that password in code. Change it after testing.
+
+After signup, run:
+
+```sql
+update profiles
+set role = 'admin'
+where email = 'addrway@outlook.com';
 ```
 
-## Vercel Deployment
+## What Works Now
 
-1. Import `https://github.com/addrway/SBD` into Vercel.
-2. Add `REACT_APP_SUPABASE_URL`, `REACT_APP_SUPABASE_KEY`, and `ANTHROPIC_API_KEY`.
-3. Deploy with the default Create React App build command: `npm run build`.
+- Premium marketing site
+- Login/signup/logout
+- Protected app shell
+- Dashboard KPI cards and charts
+- Fully functional Projects module
+- Create, edit, and delete tasks
+- Task phase, status, and priority fields
+- Supabase-backed task storage
+- CSV upload with drag-and-drop
+- CSV preview and task import
+- KPI and chart refresh after import
+- Finance dashboard architecture
+- Reports, invoices, receipts, payroll, contractors, inventory, time tracking, and settings scaffolds
+- Admin-only Command Center gate
 
-## Product
+## Later Backend Work
 
-- Product: SBD Pro
-- Price: $29.99/month
-- Trial: 24 hours free, no credit card required
-- Input methods: manual forms and AI Auto-Formulate
-- Modules: Finance, Projects, Logistics, Inventory, Customers, Reports
+These are intentionally placeholders until secure backend routes are added:
 
-## AI Agent System Prompt
-
-> You are the SBD AI Agent — a built-in intelligent assistant inside SBD (Simple Business Dashboard), a $29.99/month subscription platform. SBD has 6 modules: Finance, Projects, Logistics, Inventory, Customers, Reports. Users enter data manually or via AI Auto-Formulate. Be sharp, concise, and data-driven. Under 120 words unless asked for more.
+- Stripe Checkout and Billing Portal
+- Plaid, bank, PayPal, QuickBooks, Gusto, ADP integrations
+- PDF parsing with PDF.js
+- Excel parsing with SheetJS
+- OCR and AI receipt categorization
+- Admin-wide analytics across all users
+- External AI agent calls from protected backend routes
