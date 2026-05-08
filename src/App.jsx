@@ -123,15 +123,14 @@ function Features() {
 }
 
 function Pricing({ setPage }) {
-  const plans = [
-    ["Starter", "$29.99", "1 workspace, project dashboard, basic uploads, basic reports"],
-    ["Pro", "$79.99", "Multiple workspaces, finance tools, inventory, advanced reports"],
-    ["Enterprise", "Custom", "Admin tools, payroll, advanced analytics, team access"]
-  ];
   return (
     <main className="pricing">
       <h1>Pricing</h1>
-      <div className="grid three">{plans.map(([name, price, text]) => <Card key={name} title={`${name} · ${price}`} text={text} />)}</div>
+      <div className="grid three">
+        <Card title="SBD Pro · $29.99/month" text="All dashboards, projects, uploads, finance tools, reports, and business modules in one simple plan." />
+        <Card title="24-hour free trial" text="No credit card required to create an account and test the dashboard." />
+        <Card title="Everything included" text="No confusing tiers. Simple Business Dashboards stays simple." />
+      </div>
       <div className="panel">
         <h2>Subscriptions</h2>
         <p>Stripe Checkout is connected through a hosted payment link. Billing Portal, plan limits, and subscription status still need secure backend work later.</p>
