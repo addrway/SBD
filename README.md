@@ -65,8 +65,17 @@ All user-owned tables have Row Level Security enabled and policies requiring `au
 - Unauthenticated users see marketing, pricing, login, and signup screens.
 - Signup creates a Supabase Auth user.
 - The database trigger creates a `profiles` row with role `customer`, plan `trial`, and a 24-hour trial timestamp.
-- Authenticated users can access the protected dashboard.
+- Authenticated users can access the protected dashboard only while their trial or plan is active.
 - Logout clears the stored session.
+
+## SBD AI Engineering System
+
+This repo includes the SBD AI engineering rules from the uploaded system:
+
+- `CLAUDE.md` for Claude/Codex-style repo guidance
+- `.cursor/rules/sbd-engineering-rules.mdc` for Cursor
+- `prompts/SBD_Codex_Master_Prompt.md` for future Codex tasks
+- `agents/SBD_Agent_Roles.md` for multi-agent development roles
 
 ## Admin Setup
 
