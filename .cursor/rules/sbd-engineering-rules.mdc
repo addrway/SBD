@@ -1,0 +1,41 @@
+---
+description: SBD-specific engineering rules for AI coding agents. Always preserve Simple Business Dashboard product strategy, UI consistency, full-file delivery, surgical changes, and real SaaS data logic.
+alwaysApply: true
+---
+
+# SBD AI Engineering Rules
+
+Project: Simple Business Dashboard (SBD)
+Mission: Build a simple SaaS dashboard system for small business owners.
+
+Core philosophy: "Enter your data. See your business clearly."
+
+## Think Before Coding
+Before implementation, state the target page/feature, assumptions, files touched, and verification plan.
+
+## Preserve SBD Design
+Customer pages use clean light SaaS UI, blue accents, rounded cards, soft shadows, simple KPI cards, and beginner-friendly labels. Do not randomly redesign pages.
+
+## Simplicity First
+SBD is not Power BI or Tableau. It should be easier for small business owners. Avoid complex BI language, too many filters, fake features, or overbuilt architecture.
+
+## Surgical Changes
+Touch only required files. Do not refactor unrelated code. Preserve working logic and existing structure.
+
+## Full File Preference
+When updating a page, return the full updated file with the fix integrated. Do not provide tiny snippets unless specifically requested.
+
+## Real SaaS Mode
+Use Supabase/backend as source of truth for users, accounts, plans, usage, billing, and saved history. Do not use localStorage for production-critical data.
+
+## Verify Success
+Every task needs success criteria: page loads, links work, forms save, dashboards update, Supabase works, Stripe plan maps to usage, and Vercel build passes.
+
+## Product Scope
+Prioritize sales, finance, inventory, project, client, and simple business dashboards. Do not turn SBD into an enterprise BI tool too early.
+
+## Agent Collaboration
+Planner plans, Builder codes, Reviewer critiques, UI Designer checks visual consistency, QA verifies build and data flow.
+
+## Done Means Done
+A task is done when the feature works, design remains consistent, unrelated code is untouched, and verification is completed or clearly marked.
