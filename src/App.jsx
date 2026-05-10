@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Papa from "papaparse";
 import {
   ArcElement,
@@ -54,11 +54,13 @@ const phases = ["Planning", "Operations", "Finance", "Delivery", "Review"];
 const STRIPE_CHECKOUT_URL = "https://buy.stripe.com/28E28s5VE0HL8Qg1gqdnW00";
 
 export default function App() {
-  const { session, loading } = useAuth();
+  const { session, loading, trialActive } = useAuth();
   const [page, setPage] = useState("home");
+  const protectedPage = ["dashboard", ...navigation.map(slug)].includes(page);
 
   if (loading) return <><Styles /><div className="loading">Loading SBD Pro...</div></>;
-  if (!session && ["dashboard", ...navigation.map(slug)].includes(page)) return <><Styles /><AuthPage mode="login" setPage={setPage} /></>;
+  if (!session && protectedPage) return <><Styles /><AuthPage mode="login" setPage={setPage} /></>;
+  if (session && protectedPage && !trialActive()) return <><Styles /><TrialExpired setPage={setPage} /></>;
 
   const publicPages = {
     home: <Home setPage={setPage} />,
@@ -176,22 +178,40 @@ function AuthPage({ mode, setPage }) {
   );
 }
 
+function TrialExpired({ setPage }) {
+  const { signOut, planLabel } = useAuth();
+
+  return (
+    <main className="auth-wrap">
+      <div className="auth-card">
+        <h1>Trial ended</h1>
+        <p>Your {planLabel()} is not active right now. Subscribe for $29.99/month to keep using SBD Pro.</p>
+        <a className="button-link primary" href={STRIPE_CHECKOUT_URL} target="_blank" rel="noreferrer">Subscribe with Stripe</a>
+        <button type="button" onClick={() => setPage("pricing")}>View pricing</button>
+        <button type="button" onClick={signOut}>Logout</button>
+      </div>
+    </main>
+  );
+}
+
 function Shell({ active, setPage }) {
   const { signOut, profile, planLabel, hoursLeft } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [transactions, setTransactions] = useState([]);
 
-  async function refresh() {
+  const refresh = useCallback(async function refresh() {
     const [taskRows, transactionRows] = await Promise.all([
       supabase.select("tasks", "?select=*&order=created_at.desc").catch(() => []),
       supabase.select("transactions", "?select=*&order=date.desc,created_at.desc").catch(() => [])
     ]);
     setTasks(taskRows || []);
     setTransactions(transactionRows || []);
-  }
+  }, []);
 
-  useEffect(() => { refresh(); }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const props = { tasks, transactions, refresh };
   const pages = {
