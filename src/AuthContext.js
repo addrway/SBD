@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "./supabase";
 
 const AuthContext = createContext(null);
@@ -9,10 +9,14 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  async function loadProfile(activeSession = session) {
+  const loadProfile = useCallback(async function loadProfile(activeSession = session) {
     if (!activeSession?.access_token) {
-      setUser(null); setProfile(null); setLoading(false); return null;
+      setUser(null);
+      setProfile(null);
+      setLoading(false);
+      return null;
     }
+
     setLoading(true);
     try {
       const authUser = await supabase.getUser();
@@ -23,9 +27,11 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [session]);
 
-  useEffect(() => { loadProfile(session); }, []);
+  useEffect(() => {
+    loadProfile(session);
+  }, [loadProfile, session]);
 
   async function signUp({ fullName, email, password }) {
     const data = await supabase.signUp({ fullName, email, password });
@@ -44,7 +50,9 @@ export function AuthProvider({ children }) {
 
   async function signOut() {
     await supabase.signOut();
-    setSession(null); setUser(null); setProfile(null);
+    setSession(null);
+    setUser(null);
+    setProfile(null);
   }
 
   function hoursLeft() {
@@ -63,7 +71,20 @@ export function AuthProvider({ children }) {
     return profile.plan === "trial" ? "24-hour trial" : profile.plan;
   }
 
-  const value = useMemo(() => ({ session, user, profile, loading, signUp, signIn, signOut, refreshProfile: loadProfile, trialActive, hoursLeft, planLabel }), [session, user, profile, loading]);
+  const value = {
+    session,
+    user,
+    profile,
+    loading,
+    signUp,
+    signIn,
+    signOut,
+    refreshProfile: loadProfile,
+    trialActive,
+    hoursLeft,
+    planLabel
+  };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
